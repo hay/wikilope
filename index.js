@@ -7,6 +7,9 @@ program
     .arguments('<cmd> [env]')
     .option('-a, --article <article>', "Wikipedia article name")
     .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
+    .option('--no-redirects', "Don't follow redirects")
+    .option('-s, --stop-at-root')
+    .option('-P, --stop-at-philosophy')
     .option('-v, --verbose')
     .parse(argv);
 
@@ -19,7 +22,10 @@ if (argv.length === 2) {
     const gtp = new GTP({
         article : program.article,
         debug : program.verbose,
-        language : program.language
+        followRedirects : program.redirects,
+        language : program.language,
+        stopAtRoot : program.stopAtRoot,
+        stopAtPhilosophy : program.Philosophy
     });
 
     gtp.run();
