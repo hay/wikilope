@@ -7,7 +7,7 @@ program
     .arguments('<cmd> [env]')
     .option('-a, --article <article>', "Wikipedia article name")
     .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
-    .option('-v', '--verbose')
+    .option('-v, --verbose')
     .parse(argv);
 
 if (argv.length === 2) {

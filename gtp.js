@@ -2,27 +2,33 @@ const jsdom = require('jsdom');
 const fetch = require("node-fetch");
 
 class GTP {
-    constructor({ language, article }) {
+    constructor({ article, debug, language }) {
         this.article = article;
+        this.debug = debug;
         this.language = language;
         this.path = [ this.getLinkObject(language, article, article) ];
+        this.log("Setting up the class");
     }
 
     async getDom(url) {
+        this.log(`Loading < ${url} >`);
+
         const req = await fetch(url);
         const body = await req.text();
         const dom = new jsdom.JSDOM(body);
+
         return dom.window.document;
     }
 
     async getFirstLinkForPage(href) {
         const URL = `https://${this.language}.wikipedia.org/api/rest_v1/page/html/${href}`;
         const doc = await this.getDom(URL);
-        const links = Array.from(doc.querySelectorAll('[data-mw-section-id="0"] p [rel="mw:WikiLink"]'));
+        const links = Array.from(doc.querySelectorAll('[data-mw-section-id] p [rel="mw:WikiLink"]'));
 
         for (let link of links) {
             const title = link.title;
-            // console.log(`Considering ${title}`);
+
+            this.log(`Considering ${title}`);
 
             if (this.isArticle(title)) {
                 const href = link.href.slice(2);
@@ -62,6 +68,12 @@ class GTP {
         return true;
     }
 
+    log() {
+        if (this.debug) {
+            console.log.apply(this, arguments);
+        }
+    }
+
     push(link) {
         this.path.push(link);
     }
@@ -74,7 +86,7 @@ class GTP {
 
             if (link) {
                 if (this.hasLink(link)) {
-                    console.log(`We're going in circles ${link.title}, aborting.`);
+                    console.log(`${link.title} - We've seen that article before, aborting.`);
                     break;
                 } else {
                     console.log(link.title);
