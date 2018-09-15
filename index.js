@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 const program = require('commander');
 const argv = process.argv;
-const { climbUp } = require('./gtp.js');
+const GTP = require('./gtp.js');
 
 program
     .arguments('<cmd> [env]')
-    .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
     .option('-a, --article <article>', "Wikipedia article name")
+    .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
+    .option('-v', '--verbose')
     .parse(argv);
 
 if (argv.length === 2) {
@@ -15,8 +16,11 @@ if (argv.length === 2) {
     console.error('Please specify language and article');
     process.exit(1);
 } else {
-    climbUp({
+    const gtp = new GTP({
         article : program.article,
+        debug : program.verbose,
         language : program.language
     });
+
+    gtp.run();
 }
