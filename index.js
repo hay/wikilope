@@ -7,10 +7,10 @@ program
     .arguments('<cmd> [env]')
     .option('-a, --article <article>', "Wikipedia article name")
     .option('-c, --count <count>', "Number of links to fetch", parseInt)
+    .option('-C, --use-cache', "Use a cache to speed things up")
     .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
     .option('--no-redirects', "Don't follow redirects")
-    .option('-P, --stop-at-philosophy')
-    .option('-s, --stop-at-root')
+    .option('-s, --steps <steps>', "How many steps should we go up?", parseInt)
     .option('-v, --verbose')
     .parse(argv);
 
@@ -26,8 +26,8 @@ if (argv.length === 2) {
         debug : program.verbose,
         followRedirects : program.redirects,
         language : program.language,
-        stopAtRoot : program.stopAtRoot,
-        stopAtPhilosophy : program.Philosophy
+        steps : program.steps,
+        useCache : program.useCache
     });
 
     gtp.run();

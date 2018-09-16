@@ -3,13 +3,10 @@ const Configstore = require('configstore');
 const pkg = require('./package.json');
 const { getDomForArticle, getSummaryForArticle } = require('./api.js');
 
-const DEFAULT_ROOT_ARTICLES = ['Language', 'Science', 'Philosophy', 'Physics'];
-
 class GTP {
     constructor({
         article, debug, language, followRedirects = true,
-        rootArticles = DEFAULT_ROOT_ARTICLES, stopAtRoot = false,
-        stopAtPhilosophy = false, count = 1
+        count = 1, useCache = false, steps = 100
     }) {
         if (debug) {
             log.setLevel(log.LEVEL_DEBUG);
@@ -19,10 +16,13 @@ class GTP {
         this.count = count;
         this.followRedirects = followRedirects;
         this.language = language;
-        this.path = [];
-        this.rootArticles = rootArticles;
-        this.stopAtRoot = stopAtRoot;
-        this.stopAtPhilosophy = stopAtPhilosophy;
+        this.paths = {};
+        this.steps = steps;
+        this.useCache = useCache;
+
+        if (useCache) {
+            this.linkCache = new Configstore(pkg.name);
+        }
 
         log.debug("Setting up the class");
     }
@@ -56,37 +56,45 @@ class GTP {
     }
 
     async getTreeFor(href) {
-        while (true) {
-            let link = await this.getFirstLinkForPage(href);
+        this.paths[href] = [];
+        const path = this.paths[href];
+        let steps = this.steps;
+
+        while (steps > 0) {
+            let link;
+
+            if (this.useCache && this.linkCache.has(href)) {
+                log.debug(`Cache HIT for < ${href} >`);
+                link = [ this.linkCache.get(href) ];
+            } else {
+                log.debug(`Cache MISS for < ${href} >`);
+                link = await this.getFirstLinkForPage(href);
+            }
 
             if (link.length) {
                 link = link[0];
 
-                if (this.hasLink(link)) {
+                if (this.useCache) {
+                    log.debug(`Cache SET for < ${href} >`);
+                    this.linkCache.set(href, link);
+                }
+
+                if (path.filter(p => p.href === link.href).length > 0) {
                     log.info(`${link.title} - We've seen that article before, aborting.`);
-                    return true;
-                } else if (this.stopAtRoot && this.rootArticles.includes(link.title)) {
-                    log.info(`${link.title} - Root article, stopping here`);
-                    return true;
-                } else if (this.stopAtPhilosophy && link.title === 'Philosophy') {
-                    log.info("Philosophy, we're there. Stopping");
                     return true;
                 } else {
                     log.info(link.title);
                     href = link.href;
-                    this.path.push(link);
+                    path.push(link);
                 }
             } else {
                 log.info('NO LINK!');
                 return;
             }
+
+            steps = steps - 1;
         }
     }
-
-    hasLink(link) {
-        return this.path.filter(p => p.href === link.href).length > 0;
-    }
-
 
     async run() {
         let page = this.article;
