@@ -40,7 +40,7 @@ class GTP {
         // And now get all the links and make an object
         return Array.from(doc.querySelectorAll('[data-mw-section-id] p [rel="mw:WikiLink"]'))
             .map(link => this.getLinkObject(link))
-            .filter(link => summary.includes(link.text))
+            .filter(link => summary.includes(link.text) && !link.title.includes(':'))
             .slice(0, count);
     }
 
@@ -64,13 +64,13 @@ class GTP {
 
                 if (this.hasLink(link)) {
                     log.info(`${link.title} - We've seen that article before, aborting.`);
-                    break;
+                    return true;
                 } else if (this.stopAtRoot && this.rootArticles.includes(link.title)) {
                     log.info(`${link.title} - Root article, stopping here`);
-                    break;
+                    return true;
                 } else if (this.stopAtPhilosophy && link.title === 'Philosophy') {
                     log.info("Philosophy, we're there. Stopping");
-                    break;
+                    return true;
                 } else {
                     log.info(link.title);
                     href = link.href;
@@ -78,7 +78,7 @@ class GTP {
                 }
             } else {
                 log.info('NO LINK!');
-                break;
+                return;
             }
         }
     }
@@ -94,15 +94,18 @@ class GTP {
 
         const starters = await this.getFirstLinkForPage(page, this.count);
 
-        starters.forEach(async (starter, index) => {
+        for (let index = 0; index < starters.length; index++) {
+            let starter = starters[index];
+
             if (!starter) {
                 log.info(`No links for ${page}, aborting`);
                 return;
             }
 
             log.info(`\nGetting tree for link #${index + 1}: < ${starter.title} >`);
+
             await this.getTreeFor(starter.href);
-        });
+        }
     }
 }
 
