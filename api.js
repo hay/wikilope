@@ -29,8 +29,8 @@ function getEndpoint(method, language, href) {
 async function getSummaryForArticle(language, href) {
     const url = getEndpoint('summary', language, href);
     const req = await getRequest(url);
-
-    return await req.json();
+    const data = await req.json();
+    return data.extract;
 }
 
 module.exports = { getDomForArticle, getSummaryForArticle };

@@ -1,8 +1,10 @@
 {
-  "dependencies": {
-    "commander": "^2.18.0",
-    "configstore": "^4.0.0",
-    "jsdom": "^12.0.0",
-    "node-fetch": "^2.2.0"
-  }
+    "name" : "wikigtp",
+
+    "dependencies": {
+        "commander": "^2.18.0",
+        "configstore": "^4.0.0",
+        "jsdom": "^12.0.0",
+        "node-fetch": "^2.2.0"
+    }
 }
