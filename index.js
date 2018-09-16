@@ -7,6 +7,7 @@ program
     .arguments('<cmd> [env]')
     .option('-a, --article <article>', "Wikipedia article name")
     .option('-c, --count <count>', "Number of links to fetch", parseInt)
+    .option('-C, --cache', "Use link cache to speed things up")
     .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
     .option('--no-redirects', "Don't follow redirects")
     .option('-P, --stop-at-philosophy')
@@ -27,7 +28,8 @@ if (argv.length === 2) {
         followRedirects : program.redirects,
         language : program.language,
         stopAtRoot : program.stopAtRoot,
-        stopAtPhilosophy : program.Philosophy
+        stopAtPhilosophy : program.Philosophy,
+        useCache : program.cache
     });
 
     gtp.run();

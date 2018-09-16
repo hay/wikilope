@@ -1,5 +1,7 @@
+const Configstore = require('configstore');
 const jsdom = require('jsdom');
 const fetch = require("node-fetch");
+const pkg = require('./package.json');
 
 const DEFAULT_ROOT_ARTICLES = ['Language', 'Science', 'Philosophy', 'Physics'];
 
@@ -7,18 +9,23 @@ class GTP {
     constructor({
         article, debug, language, followRedirects = true,
         rootArticles = DEFAULT_ROOT_ARTICLES, stopAtRoot = false,
-        stopAtPhilosophy = false, count = 1
+        stopAtPhilosophy = false, count = 1, useCache = false
     }) {
         this.article = article;
         this.count = count;
         this.debug = debug;
         this.followRedirects = followRedirects;
         this.language = language;
-        this.linkCache = {};
         this.path = [ this.getLinkObject(language, article, article) ];
         this.rootArticles = rootArticles;
         this.stopAtRoot = stopAtRoot;
         this.stopAtPhilosophy = stopAtPhilosophy;
+        this.useCache = useCache;
+
+        if (this.useCache) {
+            this.linkCache = new Configstore(pkg.name);
+        }
+
         this.log("Setting up the class");
     }
 
@@ -33,6 +40,11 @@ class GTP {
     }
 
     async getFirstLinkForPage(href, count = 1) {
+        if (this.useCache && this.linkCache.has(href) && count === 1) {
+            this.log(`Hitting cache for < ${href} >`);
+            return [ this.linkCache.get(href) ];
+        }
+
         const URL = `https://${this.language}.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(href)}`;
         const doc = await this.getDom(URL);
 
@@ -58,6 +70,10 @@ class GTP {
                 const linkObject = this.getLinkObject(link.title, href);
                 this.log(`Okay, this is a valid link: ${linkObject}`);
                 links.push(linkObject);
+
+                if (this.useCache) {
+                    this.linkCache.set(href, linkObject);
+                }
             }
 
             if (links.length === count) {
@@ -148,10 +164,15 @@ class GTP {
 
         const starters = await this.getFirstLinkForPage(page, this.count);
 
-        for (const starter of starters) {
-            console.log(`\nGetting tree from ${starter.title}`);
+        starters.forEach(async (starter, index) => {
+            if (!starter) {
+                console.log(`No links for ${page}, aborting`);
+                return;
+            }
+
+            console.log(`\nGetting tree for link #${index + 1}: < ${starter.title} >`);
             await this.getTreeFor(starter.href);
-        }
+        });
     }
 }
 
