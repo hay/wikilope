@@ -19,7 +19,7 @@ if (argv.length === 2) {
     program.outputHelp();
 } else if (!program.language || !program.article) {
     console.error('Please specify language and article');
-    process.exit(1);
+    process.exit(22);
 } else {
     const gtp = new GTP({
         article : program.article,
