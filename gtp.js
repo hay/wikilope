@@ -14,6 +14,7 @@ class GTP {
         this.debug = debug;
         this.followRedirects = followRedirects;
         this.language = language;
+        this.linkCache = {};
         this.path = [ this.getLinkObject(language, article, article) ];
         this.rootArticles = rootArticles;
         this.stopAtRoot = stopAtRoot;
@@ -148,8 +149,8 @@ class GTP {
         const starters = await this.getFirstLinkForPage(page, this.count);
 
         for (const starter of starters) {
-            console.log(`Getting tree from ${starter.title}`);
-            this.getTreeFor(starter.href);
+            console.log(`\nGetting tree from ${starter.title}`);
+            await this.getTreeFor(starter.href);
         }
     }
 }
