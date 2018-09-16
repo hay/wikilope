@@ -33,6 +33,7 @@ class GTP {
         this.log(`Loading < ${url} >`);
 
         const req = await fetch(url);
+        console.log(req.statusCode);
         const body = await req.text();
         const dom = new jsdom.JSDOM(body);
 
