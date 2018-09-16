@@ -7,9 +7,10 @@ class GTP {
     constructor({
         article, debug, language, followRedirects = true,
         rootArticles = DEFAULT_ROOT_ARTICLES, stopAtRoot = false,
-        stopAtPhilosophy = false
+        stopAtPhilosophy = false, count = 1
     }) {
         this.article = article;
+        this.count = count;
         this.debug = debug;
         this.followRedirects = followRedirects;
         this.language = language;
@@ -30,7 +31,7 @@ class GTP {
         return dom.window.document;
     }
 
-    async getFirstLinkForPage(href) {
+    async getFirstLinkForPage(href, count = 1) {
         const URL = `https://${this.language}.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(href)}`;
         const doc = await this.getDom(URL);
 
@@ -43,20 +44,28 @@ class GTP {
         */
 
         // And now get all the links
-        const links = Array.from(doc.querySelectorAll('[data-mw-section-id] p [rel="mw:WikiLink"]'));
+        const candidates = Array.from(doc.querySelectorAll('[data-mw-section-id] p [rel="mw:WikiLink"]'));
+        const links = [];
 
-        for (let link of links) {
+        for (let link of candidates) {
             const title = link.title;
 
             this.log(`Considering ${title}`);
 
             if (this.isArticle(link)) {
                 const href = link.href.slice(2);
-                return this.getLinkObject(link.title, href);
+                const linkObject = this.getLinkObject(link.title, href);
+                this.log(`Okay, this is a valid link: ${linkObject}`);
+                links.push(linkObject);
+            }
+
+            if (links.length === count) {
+                this.log(`We're done, returning ${links.length} links (count ${count})`);
+                return links;
             }
         }
 
-        return null;
+        return [null];
     }
 
     getLinkObject(title, href) {
@@ -70,6 +79,36 @@ class GTP {
     getPath() {
         return this.path;
     }
+
+
+    async getTreeFor(href) {
+        while (true) {
+            let link = await this.getFirstLinkForPage(href);
+
+            if (link.length) {
+                link = link[0];
+
+                if (this.hasLink(link)) {
+                    console.log(`${link.title} - We've seen that article before, aborting.`);
+                    break;
+                } else if (this.stopAtRoot && this.rootArticles.includes(link.title)) {
+                    console.log(`${link.title} - Root article, stopping here`);
+                    break;
+                } else if (this.stopAtPhilosophy && link.title === 'Philosophy') {
+                    console.log("Philosophy, we're there. Stopping");
+                    break;
+                } else {
+                    console.log(link.title);
+                    href = link.href;
+                    this.path.push(link);
+                }
+            } else {
+                console.log('NO LINK!');
+                break;
+            }
+        }
+    }
+
 
     hasLink(link) {
         for (const path of this.path) {
@@ -104,30 +143,13 @@ class GTP {
 
     async run() {
         let page = this.article;
-        console.log(page);
+        console.log(`Getting links for ${page}`);
 
-        while (true) {
-            const link = await this.getFirstLinkForPage(page);
+        const starters = await this.getFirstLinkForPage(page, this.count);
 
-            if (link) {
-                if (this.hasLink(link)) {
-                    console.log(`${link.title} - We've seen that article before, aborting.`);
-                    break;
-                } else if (this.stopAtRoot && this.rootArticles.includes(link.title)) {
-                    console.log(`${link.title} - Root article, stopping here`);
-                    break;
-                } else if (this.stopAtPhilosophy && link.title === 'Philosophy') {
-                    console.log("Philosophy, we're there. Stopping");
-                    break;
-                } else {
-                    console.log(link.title);
-                    page = link.href;
-                    this.path.push(link);
-                }
-            } else {
-                console.log('NO LINK!');
-                break;
-            }
+        for (const starter of starters) {
+            console.log(`Getting tree from ${starter.title}`);
+            this.getTreeFor(starter.href);
         }
     }
 }
