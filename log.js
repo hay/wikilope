@@ -1,24 +1,26 @@
+const chalk = require('chalk');
+
 const LEVEL_DEBUG = 0;
 const LEVEL_INFO = 1;
-const LEVEL_DANGER = 2;
+const LEVEL_ERROR = 2;
 
 let level = LEVEL_INFO;
 
-function debug() {
+function debug(msg) {
     if (level <= LEVEL_DEBUG) {
-        console.log.apply(this, arguments);
+        console.log(chalk.green(msg));
     }
 }
 
-function error() {
-    if (level <= LEVEL_DANGER) {
-        console.error.apply(this, arguments);
-    }
-}
-
-function info() {
+function info(msg) {
     if (level <= LEVEL_INFO) {
-        console.log.apply(this, arguments);
+        console.log(chalk.blue(msg));
+    }
+}
+
+function error(msg) {
+    if (level <= LEVEL_ERROR) {
+        console.log(chalk.red(msg));
     }
 }
 
@@ -28,6 +30,7 @@ function setLevel(newLevel) {
 
 module.exports = {
     LEVEL_DEBUG,
+    LEVEL_ERROR,
     LEVEL_INFO,
     debug,
     error,

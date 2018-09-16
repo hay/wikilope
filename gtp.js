@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 const log = require('./log.js');
 const Configstore = require('configstore');
 const pkg = require('./package.json');
@@ -88,7 +89,7 @@ class GTP {
                     path.push(link);
                 }
             } else {
-                log.info('NO LINK!');
+                log.error('No links from this article');
                 return;
             }
 
@@ -98,9 +99,13 @@ class GTP {
 
     async run() {
         let page = this.article;
-        log.info(`Getting links for ${page}`);
+        log.info(`Getting links for ${chalk.bold(page)}`);
 
         const starters = await this.getFirstLinkForPage(page, this.count);
+
+        if (starters.length !== this.count) {
+            log.error(`Could only get ${starters.length} links to start with (you wanted ${this.count})`);
+        }
 
         for (let index = 0; index < starters.length; index++) {
             let starter = starters[index];
@@ -110,7 +115,8 @@ class GTP {
                 return;
             }
 
-            log.info(`\nGetting tree for link #${index + 1}: < ${starter.title} >`);
+            const msg = `#${index + 1}: ${starter.title}`;
+            log.info(`\n${chalk.bold(msg)}`);
 
             await this.getTreeFor(starter.href);
         }
