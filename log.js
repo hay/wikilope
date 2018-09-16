@@ -3,6 +3,7 @@ const chalk = require('chalk');
 const LEVEL_DEBUG = 0;
 const LEVEL_INFO = 1;
 const LEVEL_ERROR = 2;
+const LEVEL_SILENT = 3;
 
 let level = LEVEL_INFO;
 
@@ -32,6 +33,7 @@ module.exports = {
     LEVEL_DEBUG,
     LEVEL_ERROR,
     LEVEL_INFO,
+    LEVEL_SILENT,
     debug,
     error,
     info,

@@ -6,20 +6,26 @@ const { getDomForArticle, getSummaryForArticle } = require('./api.js');
 
 class GTP {
     constructor({
-        article, debug, language, followRedirects = true,
-        count = 1, useCache = false, steps = 100
+        article, debug, language, followRedirects = true, format = 'tree',
+        count = 1, useCache = false, steps = 100, recursive = false
     }) {
+        this.article = article;
+        this.count = count;
+        this.followRedirects = followRedirects;
+        this.format = format;
+        this.language = language;
+        this.paths = {};
+        this.recursive = recursive;
+        this.steps = steps;
+        this.useCache = useCache;
+
         if (debug) {
             log.setLevel(log.LEVEL_DEBUG);
         }
 
-        this.article = article;
-        this.count = count;
-        this.followRedirects = followRedirects;
-        this.language = language;
-        this.paths = {};
-        this.steps = steps;
-        this.useCache = useCache;
+        if (format === 'terms') {
+            log.setLevel(log.LEVEL_SILENT);
+        }
 
         if (useCache) {
             this.linkCache = new Configstore(pkg.name);
@@ -56,7 +62,7 @@ class GTP {
         }
     }
 
-    async getTreeFor(href) {
+    async getTreeFor(href, recursive = true) {
         this.paths[href] = [];
         const path = this.paths[href];
         let steps = this.steps;
@@ -81,12 +87,20 @@ class GTP {
                 }
 
                 if (path.filter(p => p.href === link.href).length > 0) {
-                    log.info(`${link.title} - We've seen that article before, aborting.`);
                     return true;
                 } else {
-                    log.info(link.title);
+                    if (!recursive) {
+                        log.info(`    ${link.title}`)
+                    } else {
+                        log.info(link.title);
+                    }
+
                     href = link.href;
                     path.push(link);
+
+                    if (recursive && this.recursive) {
+                        await this.getTreeFor(href, false);
+                    }
                 }
             } else {
                 log.error('No links from this article');
@@ -119,6 +133,20 @@ class GTP {
             log.info(`\n${chalk.bold(msg)}`);
 
             await this.getTreeFor(starter.href);
+        }
+
+        if (this.format === 'terms') {
+            let terms = [];
+
+            for (let key in this.paths) {
+                let paths = this.paths[key];
+                for (let link of paths) {
+                    terms.push(link.title);
+                }
+            }
+
+            terms = Array.from(new Set(terms)).sort();
+            console.log(terms.join('\n'));
         }
     }
 }
