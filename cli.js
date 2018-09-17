@@ -8,6 +8,7 @@ program
     .option('-a, --article <article>', "Wikipedia article name")
     .option('-c, --count <count>', "Number of links to fetch", parseInt)
     .option('-f, --format <format>', "Output format: 'tree' (default) or 'terms'")
+    .option('--json', "Output in JSON format")
     .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
     .option('--no-redirects', "Don't follow redirects")
     .option('--no-cache', "Don't cache entries")
@@ -28,6 +29,7 @@ if (argv.length === 2) {
         debug : program.verbose,
         followRedirects : program.redirects,
         format : program.format,
+        json : program.json,
         language : program.language,
         recursive : program.recursive,
         steps : program.steps,

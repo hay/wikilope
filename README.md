@@ -31,7 +31,7 @@ lope.run();
 
 ## Advanced usage
 ### Command line
-The `wikilope` has a lot of options you can use for interesting queries:
+The `wikilope` command has a lot of options you can use for interesting queries:
 
 ```bash
 Usage: wikilope [options] <cmd> [env]
@@ -41,6 +41,7 @@ Options:
   -a, --article <article>    Wikipedia article name
   -c, --count <count>        Number of links to fetch
   -f, --format <format>      Output format: 'tree' (default) or 'terms'
+  --json                     Output in JSON format
   -l, --language <language>  Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')
   --no-redirects             Don't follow redirects
   --no-cache                 Don't cache entries
@@ -62,12 +63,16 @@ To also get the links from the articles you find use the recursive (`-r`) option
 
     wikilope -l en -a Elephant -r
 
+Get the same data, but in JSON format
+
+    wikilope -l en -a Elephant -r --json
+
 To limit the number of articles we're getting we could use the step (`-s`) option. We're also getting the first three links and doing it recursive.
 
     wikilope -l en -a Blockchain -rs 5 -c 3
 
 ### Node.js
-To use this module from Node.js use it like this:
+Use this module for Node.js like this:
 
 ```javascript
 const Wikilope = require('../index.js');
@@ -90,6 +95,7 @@ All options of the command line version have equivalent arguments in the `Wikilo
     debug             : verbose,
     followRedirects   : redirects,
     format            : format,
+    json              : json,
     language          : language,
     recursive         : recursive,
     steps             : steps,
