@@ -12,7 +12,7 @@
     ],
     "main": "index.js",
     "bin": {
-        "wikilope": "./index.js"
+        "wikilope": "./cli.js"
     },
     "scripts": {
 
