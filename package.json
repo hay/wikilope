@@ -1,5 +1,32 @@
 {
     "name": "wikilope",
+    "version": "0.1.0",
+    "description": "Discover interesting connections starting from a Wikipedia article.",
+    "keywords": [
+        "wikipedia",
+        "wikimedia",
+        "cli",
+        "network",
+        "graph",
+        "commandline"
+    ],
+    "main": "index.js",
+    "bin": {
+        "wikilope": "./index.js"
+    },
+    "scripts": {
+
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/hay/wikilope.git"
+    },
+    "bugs": {
+        "url": "https://github.com/hay/wikilope/issues"
+    },
+    "homepage": "https://github.com/hay/wikilope",
+    "author": "Hay Kranen",
+    "license": "MIT",
     "dependencies": {
         "chalk": "^2.4.1",
         "commander": "^2.18.0",
