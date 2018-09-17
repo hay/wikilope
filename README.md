@@ -18,7 +18,7 @@ wikilope -l <language code> -a <article name>
 
 Do the classical [Getting to Philosopy](https://en.wikipedia.org/wiki/Wikipedia:Getting_to_Philosophy) effect, starting from the English language Wikipedia version of the 'Amsterdam' article.
 
-    wikigtp -l en -a Amsterdam
+    wikilope -l en -a Amsterdam
 
 ## License
 MIT &copy; [Hay Kranen](http://www.haykranen.nl)
