@@ -66,7 +66,36 @@ To limit the number of articles we're getting we could use the step (`-s`) optio
 
     wikilope -l en -a Blockchain -rs 5 -c 3
 
-More examples can be found in the [examples](./examples) directory.
+### Node.js
+To use this module from Node.js use it like this:
+
+```javascript
+const Wikilope = require('../index.js');
+
+const lope = new Wikilope({
+    article : 'Amsterdam',
+    language : 'en'
+});
+
+lope.run();
+```
+
+All options of the command line version have equivalent arguments in the `Wikilope` constructor:
+
+```javascript
+{
+ // Class option      : Command line flag
+    article           : article,
+    count             : count,
+    debug             : verbose,
+    followRedirects   : redirects,
+    format            : format,
+    language          : language,
+    recursive         : recursive,
+    steps             : steps,
+    useCache          : cache
+}
+```
 
 ## License
 MIT &copy; [Hay Kranen](http://www.haykranen.nl)
