@@ -14,9 +14,7 @@
     "bin": {
         "wikilope": "./cli.js"
     },
-    "scripts": {
-
-    },
+    "scripts": {},
     "repository": {
         "type": "git",
         "url": "git+https://github.com/hay/wikilope.git"
