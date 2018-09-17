@@ -1,3 +1,3 @@
-const Wikilope = require('./lib/gtp.js');
+const Wikilope = require('./lib/wikilope.js.js');
 
 module.exports = Wikilope;

@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 const program = require('commander');
 const argv = process.argv;
-const GTP = require('./lib/gtp.js');
+const Wikilope = require('./lib/wikilope.js');
 
 program
     .arguments('<cmd> [env]')
     .option('-a, --article <article>', "Wikipedia article name")
     .option('-c, --count <count>', "Number of links to fetch", parseInt)
-    .option('-C, --use-cache', "Use a cache to speed things up")
     .option('-f, --format <format>', "Output format: 'tree' (default) or 'terms'")
     .option('-l, --language <language>', "Language code for Wikipedia edition (e.g. 'en', 'nl', 'fr')")
     .option('--no-redirects', "Don't follow redirects")
+    .option('--no-cache', "Don't cache entries")
     .option('-r, --recursive', "Also crawl up from results")
     .option('-s, --steps <steps>', "How many steps should we go up?", parseInt)
     .option('-v, --verbose')
@@ -22,7 +22,7 @@ if (argv.length === 2) {
     console.error('Please specify language and article');
     process.exit(22);
 } else {
-    const gtp = new GTP({
+    const opts = {
         article : program.article,
         count : program.count,
         debug : program.verbose,
@@ -31,8 +31,13 @@ if (argv.length === 2) {
         language : program.language,
         recursive : program.recursive,
         steps : program.steps,
-        useCache : program.useCache
-    });
+        useCache : program.cache
+    };
 
-    gtp.run();
+    if (program.verbose) {
+        console.log('Creating new Wikilope with these options', opts);
+    }
+
+    const lope = new Wikilope(opts);
+    lope.run();
 }
